@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<package>
+    <name>PayEx_Payments</name>
+    <version>3.0.1</version>
+    <stability>stable</stability>
+    <license uri="http://opensource.org/licenses/osl-3.0.php">Open Software License (OSL 3.0)</license>
+    <channel>community</channel>
+    <extends/>
+    <summary>PayEx Payments for Magento</summary>
+    <description>Official PayEx Payments Extension for Magento</description>
+    <notes>Version 3.0.1&#xD;
+* Implemented Swish Payment Method&#xD;
+* Financing Invoice: Invoice link&#xD;
+* Fixed payex account problem for multiple stores&#xD;
+&#xD;
+Version 3.0.0&#xD;
+* Init release of PayEx Payments module&#xD;
+* Payment modules have been assembled in a single module&#xD;
+* Integrated "Social Security Number" module&#xD;
+* Implemented PayEx Faktura (Financing Invoice)&#xD;
+* Implemented PayEx Delbetala (PartPayment)&#xD;
+* Implemented PayEx Invoice (Ledger Service)&#xD;
+* Implemented MasterPass Payments&#xD;
+* Social Security Number: IWD_Opc support&#xD;
+* Taxable discounts&#xD;
+* Taxable fees&#xD;
+* Option: Send order lines and billing/delivery addresses to PayEx&#xD;
+* Option: Replace illegal characters of product names&#xD;
+* Tune: Use order_id instead customer_id for productNumber&#xD;
+* Improved Transaction Callback&#xD;
+* Install using modman&#xD;
+* Many various code changes and fixes&#xD;
+* Removed deprecated code&#xD;
+&#xD;
+Version 2.0.31&#xD;
+* Fixed bug with wrong order state when capture via backend&#xD;
+&#xD;
+Version 2.0.30&#xD;
+* Improved update checker&#xD;
+&#xD;
+Version 2.0.29&#xD;
+* PayEx Payment Page 2.0 for 'Credit Card' and 'Direct Debit' views&#xD;
+&#xD;
+Version 2.0.28&#xD;
+* Improved rounding issue workaround&#xD;
+&#xD;
+Version 2.0.27&#xD;
+* Added Reward points support&#xD;
+&#xD;
+Version 2.0.26&#xD;
+* Improved transaction processing&#xD;
+* Set correct order state&#xD;
+* Sending mail when failed payments&#xD;
+&#xD;
+Version 2.0.25&#xD;
+* Fixed problem with handling of canceled transactions&#xD;
+&#xD;
+Version 2.0.24&#xD;
+* Fixed problem "The transaction "xxx" (capture) is already closed"&#xD;
+* Removed unused functions&#xD;
+* Minor changes&#xD;
+&#xD;
+Version 2.0.23&#xD;
+* Fixed problems with order state&#xD;
+* Small bugfixes&#xD;
+&#xD;
+Version 2.0.22&#xD;
+* Fixed bug with empty invoice totals&#xD;
+* Updated Px library to 2.0.1&#xD;
+&#xD;
+Version 2.0.21&#xD;
+* Fixed problem with empty TotalPaid value&#xD;
+* Fixed problem with empty tax for bundled product&#xD;
+* Small bugfixes&#xD;
+* Added version hint&#xD;
+&#xD;
+Version 2.0.20&#xD;
+* Fixed problem with downloadable products&#xD;
+&#xD;
+Version 2.0.19&#xD;
+* Fixed bug with multiple currencies setup&#xD;
+* Use Initialize8, Capture5, Credit5&#xD;
+* Updated Px library (moved to lib directory)&#xD;
+* Removed deprecated code&#xD;
+* Various bugfixes&#xD;
+&#xD;
+Version 2.0.18&#xD;
+* Responsive Skinning&#xD;
+&#xD;
+Version 2.0.17&#xD;
+* Fixed rounding issue&#xD;
+&#xD;
+Version 2.0.16&#xD;
+* Added PayPal Payment View&#xD;
+* Saving the refunded/canceled/failed transactions.&#xD;
+* Verbose error messages&#xD;
+* Save cart when fails&#xD;
+* Updated translations&#xD;
+* Bugfixes&#xD;
+&#xD;
+Version 2.0.15&#xD;
+* Fixed multi store support&#xD;
+&#xD;
+Version 2.0.14&#xD;
+* Updated Payex Library&#xD;
+&#xD;
+Version 2.0.13&#xD;
+* Enabled Partial Refund in Invoice&#xD;
+&#xD;
+Version 2.0.12&#xD;
+* Fixed rounding error bug&#xD;
+&#xD;
+Version 2.0.11&#xD;
+* Fixed CodeOrder_AmountNotEqualOrderLinesTotal&#xD;
+&#xD;
+Version 2.0.10&#xD;
+* Fix amount bug in AddOrderLine function&#xD;
+* Fixed some bugs in order statuses&#xD;
+&#xD;
+Version 2.0.9&#xD;
+* Fixed Tax Calc bug&#xD;
+* Fixed CodeOrder_AmountNotEqualOrderLinesTotal&#xD;
+&#xD;
+Version 2.0.8&#xD;
+* Improved Order Info&#xD;
+* Added Order Info in PDF Invoice&#xD;
+&#xD;
+Version 2.0.7&#xD;
+* Fixed bug with order (in sale mode the order is not finalized)&#xD;
+* Fixed bug with refund&#xD;
+* Moved design templates in base directory&#xD;
+&#xD;
+Version 2.0.6&#xD;
+* Fixed bug with wrong capture/refund amount&#xD;
+&#xD;
+Version 2.0.5&#xD;
+* Added options for cleaning time in Payment Config&#xD;
+&#xD;
+Version 2.0.4&#xD;
+* Fixed Pending Order Cleaner bug&#xD;
+&#xD;
+Version 2.0.3&#xD;
+* Many bugfixes&#xD;
+&#xD;
+Version 2.0.2&#xD;
+* Division by zero fix (When Shipping is 0)&#xD;
+&#xD;
+Version 2.0.1&#xD;
+* Rewrited API Helper&#xD;
+&#xD;
+Version 2.0.0&#xD;
+* Changend namespace&#xD;
+* Rewrited payment engine&#xD;
+* Added Translations&#xD;
+* Bugfixes&#xD;
+&#xD;
+Version 1.2.3-r20120329&#xD;
+* Added compatibility with AAIT PayEx Core&#xD;
+&#xD;
+Version 1.2.3&#xD;
+* Small bugfixes&#xD;
+&#xD;
+Version 1.2.2&#xD;
+* Fixed DirectDebit bug (Payment Cancel)&#xD;
+* Added option "Payment Type" in the settings panel.&#xD;
+* Small bugfixes&#xD;
+&#xD;
+Version 1.2.1&#xD;
+* Small bugfixes&#xD;
+&#xD;
+Version 1.2.0&#xD;
+* Required PayEx Core module v1.0.1&#xD;
+* Transaction fetching&#xD;
+* Bugfixes&#xD;
+</notes>
+    <authors><author><name>AAIT</name><user>aaight</user><email>info@aait.se</email></author></authors>
+    <date>2016-05-04</date>
+    <time>11:59:32</time>
+    <contents><target name="magecommunity"><dir name="PayEx"><dir name="Payments"><dir name="Block"><dir name="Adminhtml"><dir name="Config"><file name="Hint.php" hash="eb183968bc78ad610698149c2e43eee8"/></dir><dir name="Sales"><dir name="Order"><dir name="Create"><dir name="Totals"><file name="Fee.php" hash="8a2e94e150260233793bc234175860ca"/></dir></dir></dir></dir></dir><dir name="Bankdebit"><file name="Banks.php" hash="513151012cfc3b50ba664a4dd5ae0506"/></dir><dir name="Checkout"><file name="Fee.php" hash="19e183ebcca0fd0124e16e8a5ee12a27"/></dir><dir name="Form"><file name="Autopay.php" hash="fe9b0f2c290929b65cffc0d9d82c8134"/><file name="Bankdebit.php" hash="7ac259e42c1750b039333bdf8e251120"/><file name="CC.php" hash="3a1e2c04277ad1112f6c02e1a69feb6b"/><file name="Financing.php" hash="407259a988ac5184d26530b196ef5fd6"/><file name="Invoice.php" hash="da5b1a05319df937787fccb383d10603"/><file name="MasterPass.php" hash="c498e2a8348e69c38363bbfb4637a9db"/><file name="PartPayment.php" hash="5109b405a3bf50af8abef09382f9832d"/><file name="Swish.php" hash="3bafe7744b0d7b6d7cf58b801368da6c"/><file name="Wywallet.php" hash="6d93149b4708369cf9b162b28acf93ae"/></dir><dir name="Info"><file name="Autopay.php" hash="87efd7d5e0c013c50698e951806e61a4"/><file name="Bankdebit.php" hash="0adc20468181f262f96a85d0cc660294"/><file name="CC.php" hash="5e5719393bf435ad43262d8cff99ff7d"/><file name="Financing.php" hash="3f00c97d360931ab26e43cf7fc51c802"/><file name="Invoice.php" hash="b5279f695dd4a3b2f03359d31024d715"/><file name="MasterPass.php" hash="e89dfab07bc90dbbde17add8ec86edd4"/><file name="PartPayment.php" hash="8af5c7d10d46f198835823a2246411e4"/><file name="Swish.php" hash="ced50c4956bbf1b47d75bf6e17add7a2"/><file name="Wywallet.php" hash="cf2ab25ee18ce1864d54295bce9c5413"/></dir><dir name="MasterPass"><file name="Button.php" hash="a21664578bd2e64dd0da17c78d86acd4"/></dir><dir name="Order"><dir name="Totals"><file name="Fee.php" hash="5c17b48ff4af838118d2f3a79f8196de"/></dir></dir></dir><dir name="Helper"><file name="Agreement.php" hash="669e23be0609b8b2b6e8ef69828237bb"/><file name="Api.php" hash="efcbba9c2b74bf2856e70c975e7441cc"/><file name="Data.php" hash="222c131eaa7ec9b9a63f5d04d1396cdf"/><file name="Discount.php" hash="a9e14a27371bfa658d145fa4c1645528"/><file name="Fee.php" hash="3704dd59b91e450824b14d7ce815fcd2"/><file name="Order.php" hash="2cdd01cdd85fce52003c2cdb2352cb5c"/><file name="Tools.php" hash="44532d39b11fc0d8bc100a70de695ca1"/></dir><dir name="Model"><file name="Agreement.php" hash="424c46027050c8414c43acb16da6eb62"/><file name="Feed.php" hash="f5da40677cf63bc951ef79b76cc5511d"/><dir name="Invoice"><file name="Total.php" hash="8882f98404b07353eee6acbe1958c6dd"/></dir><dir name="Mysql4"><dir name="Agreement"><file name="Collection.php" hash="b3e90711a42b1809a19ea020229af8bf"/></dir><file name="Agreement.php" hash="08a61c11053577ac16c63e3d205bfb24"/></dir><file name="Observer.php" hash="70f737166e3db85715ac87b5f7dcf0af"/><dir name="Payment"><file name="Abstract.php" hash="ca596169a9f999e9cf2e41df37502c17"/><file name="Autopay.php" hash="c884987d4bf87dc3ae354443ab21c2a4"/><file name="Bankdebit.php" hash="a26006557a1e61deead2fc5c86f264db"/><file name="CC.php" hash="5d76e80dfea312753b5b73c4d69306c1"/><file name="Financing.php" hash="8748a14ac071767b615c9cb330c69a76"/><file name="Invoice.php" hash="6a7fd1e01d5d10aac1238e2730446fd1"/><file name="MasterPass.php" hash="bd42b6804285d1d38bce2da87ede0b7d"/><file name="PartPayment.php" hash="db870218eb9d13cccf894a0088d90f1b"/><file name="Swish.php" hash="79421605835b4d959749a9dad3538a36"/><file name="Wywallet.php" hash="723a11740b07ace3a29cd07e2090a273"/></dir><dir name="Quote"><file name="Total.php" hash="f8afbb402a17d429a55a238d1c09df04"/></dir><file name="Session.php" hash="1fecbc5cfae2895af571ec4f6bd94b77"/><dir name="Source"><file name="Banks.php" hash="0ef09b35734564738624c49124288429"/><file name="ClientLanguage.php" hash="6a62ed649614a3fdb8544d6a028518a1"/><file name="MediaDistribution.php" hash="f01d02d087d8d006b91ef542ad9bd3e7"/><file name="PaymentAction.php" hash="9dcb319d3987c285b297d40f0318f079"/><file name="PaymentView.php" hash="a1ed5ba1386ca6a294c53125fafe80fa"/><file name="ShippingMethod.php" hash="6c05068faae319ebb27319733ed5e95a"/><file name="TaxClasses.php" hash="b6ceeb12e575d6c1296cbc3850165a12"/></dir></dir><dir name="controllers"><file name="AutopayController.php" hash="3fab1a3c8c477a3bb4877e0820efed8d"/><file name="BankdebitController.php" hash="70ffcc53b5fd45f57153c29e0d6269b1"/><file name="FinancingController.php" hash="9777fd538daf0ad5a70386b04a23a4c2"/><file name="GetaddrController.php" hash="c119f5771b6b9f35b17bad472d0b1165"/><file name="InvoiceController.php" hash="058265b8390894c9c2b9f3cf4c7caee1"/><file name="MasterpassController.php" hash="078f8f71b7f1c28ef404f7023c41ccf3"/><file name="PartpaymentController.php" hash="5adccde9244fd6da6a667383f726bec4"/><file name="PaymentController.php" hash="36108a68423d34f606b0c658f6fa7e24"/><file name="SwishController.php" hash="040f8394796e59dc49f52b507d45afec"/><file name="TransactionController.php" hash="2b9b42ebd63e1f0202fb05881651269a"/><file name="WywalletController.php" hash="b41ca2f84d9304c21cbe97ea2e2e8bc8"/></dir><dir name="data"><dir name="payex_setup"><file name="data-install-3.0.0.php" hash="3a93c2049db69949fc615fddee97c818"/></dir></dir><dir name="etc"><file name="config.xml" hash="1c8b2830b6ce5fa3a0dbef33ff0ab555"/><file name="system.xml" hash="e7cd1bacbc84087d998c47e064397e3d"/></dir><dir name="sql"><dir name="payex_setup"><file name="install-3.0.0.php" hash="3182c5ce1647a38e805f86abef05bc8a"/></dir></dir></dir></dir></target><target name="magelocale"><dir name="en_US"><file name="PayEx_Payments.csv" hash="d41d8cd98f00b204e9800998ecf8427e"/></dir><dir name="sv_SE"><file name="PayEx_Payments.csv" hash="07b5a1df1d4ed49bc803b1d505f9d2f5"/></dir></target><target name="magedesign"><dir name="frontend"><dir name="base"><dir name="default"><dir name="template"><dir name="payex"><dir name="autopay"><file name="form.phtml" hash="eeff0becc642b3f2f468e80d96144dbc"/><file name="info.phtml" hash="d9b8f551ac4d53b1fe2e9b82d365e4c3"/><dir name="pdf"><file name="info.phtml" hash="1a7bb5d58cabb8a4a66234ffd3d6c230"/></dir><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="bankdebit"><file name="form.phtml" hash="9840095a4d2f87dd955579cb053d6327"/><file name="info.phtml" hash="8b43e84bae9c4ffc96e57537c042bc42"/></dir><dir name="cc"><file name="form.phtml" hash="8286f66533534c36b1a8284dc55f543b"/><file name="info.phtml" hash="01f5da45f5a3668f3228a72bbd0b6aae"/><dir name="pdf"><file name="info.phtml" hash="fbbe9f65f9e36ddb630ab9a9b019ed49"/></dir><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="checkout"><file name="fee.phtml" hash="78f6f419e4324fb76a5b25d5d9dbbe29"/><dir name="onepage"><file name="billing_with_ssn.phtml" hash="b0a7f7aafc449eb05488ee31c72fc5ae"/></dir></dir><dir name="financing"><file name="form.phtml" hash="08e98c6954d14276f57eb8339567bfb7"/><file name="info.phtml" hash="15700ce473736a214fc1aa41daf7f1e6"/><dir name="pdf"><file name="info.phtml" hash="fbbe9f65f9e36ddb630ab9a9b019ed49"/></dir><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="invoice"><file name="form.phtml" hash="fba1c82b52d3204f9db93e55f0501f1d"/><file name="info.phtml" hash="a90f8aa90e56265c9e4533551bd3f1d2"/></dir><dir name="iwd_opc"><file name="billing_with_ssn.phtml" hash="fa37263b495924da540607989c845b51"/></dir><dir name="masterpass"><file name="button.phtml" hash="a845fe3f3965b4c151a87132a2560502"/><file name="form.phtml" hash="d7b01403fb3c58c2de79fdfa4ee38bc9"/><file name="info.phtml" hash="a3fe264db69fc49b65f05a7d2fc64590"/><dir name="pdf"><file name="info.phtml" hash="fbbe9f65f9e36ddb630ab9a9b019ed49"/></dir><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="partpayment"><file name="form.phtml" hash="e321b2421e706f328c531595dcaf1316"/><file name="info.phtml" hash="e8d0ef852c3b899bf305a9b486a253a7"/><dir name="pdf"><file name="info.phtml" hash="fbbe9f65f9e36ddb630ab9a9b019ed49"/></dir><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="swish"><file name="form.phtml" hash="44a68dc45b8db91bfb715ca9467ab827"/><file name="info.phtml" hash="b2c51aa0a4383c5465cebdc50cda5ec4"/><dir name="pdf"><file name="info.phtml" hash="fbbe9f65f9e36ddb630ab9a9b019ed49"/></dir><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="wywallet"><file name="form.phtml" hash="6e1bd3fb7bc50bfc3cf4e6808ebfb7b7"/><file name="info.phtml" hash="600d2c36c2691f1cddd3f05e4aafbc70"/><dir name="pdf"><file name="info.phtml" hash="1a7bb5d58cabb8a4a66234ffd3d6c230"/></dir></dir></dir></dir><dir name="layout"><dir name="payex"><file name="masterpass.xml" hash="d98963f85886570e21246f34d798ffa7"/><file name="payment_fee.xml" hash="d79c4ac5c4a9fddbadf8e156f67643bc"/><file name="social_security_number.xml" hash="67bcd100a20f68a45b52eb063ecc23c6"/></dir></dir></dir></dir></dir><dir name="adminhtml"><dir name="default"><dir name="default"><dir name="template"><dir name="payex"><dir name="adminhtml"><file name="hint.phtml" hash="e50c7fd0c9ea1fd315ea713a88e1b3e2"/></dir><dir name="autopay"><file name="form.phtml" hash="eeff0becc642b3f2f468e80d96144dbc"/><file name="info.phtml" hash="d9b8f551ac4d53b1fe2e9b82d365e4c3"/><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="bankdebit"><file name="form.phtml" hash="9840095a4d2f87dd955579cb053d6327"/><file name="info.phtml" hash="8b43e84bae9c4ffc96e57537c042bc42"/></dir><dir name="cc"><file name="form.phtml" hash="8286f66533534c36b1a8284dc55f543b"/><file name="info.phtml" hash="01f5da45f5a3668f3228a72bbd0b6aae"/><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="financing"><file name="form.phtml" hash="ef3303f50ce4a7d27b2fe2eb89f5b532"/><file name="info.phtml" hash="15700ce473736a214fc1aa41daf7f1e6"/><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="invoice"><file name="form.phtml" hash="fba1c82b52d3204f9db93e55f0501f1d"/><file name="info.phtml" hash="a90f8aa90e56265c9e4533551bd3f1d2"/></dir><dir name="masterpass"><file name="button.phtml" hash="a845fe3f3965b4c151a87132a2560502"/><file name="form.phtml" hash="d7b01403fb3c58c2de79fdfa4ee38bc9"/><file name="info.phtml" hash="a3fe264db69fc49b65f05a7d2fc64590"/><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="partpayment"><file name="form.phtml" hash="e321b2421e706f328c531595dcaf1316"/><file name="info.phtml" hash="e8d0ef852c3b899bf305a9b486a253a7"/><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="swish"><file name="form.phtml" hash="44a68dc45b8db91bfb715ca9467ab827"/><file name="info.phtml" hash="8cab37ca1d161bc1751d26d6b647dd75"/><file name="title.phtml" hash="de64ade21290cd394a0dc7f0b356a131"/></dir><dir name="wywallet"><file name="form.phtml" hash="6e1bd3fb7bc50bfc3cf4e6808ebfb7b7"/><file name="info.phtml" hash="600d2c36c2691f1cddd3f05e4aafbc70"/></dir></dir></dir><dir name="layout"><dir name="payex"><file name="adminhtml.xml" hash="09843499521cc0d049e598af3bc93577"/><file name="payment_fee.xml" hash="8901262fe753925034024f90519a00b6"/></dir></dir></dir></dir></dir></target><target name="mage"><dir name="app"><dir name="etc"><dir name="modules"><file name="PayEx_Payments.xml" hash="17ebbe7078c7a64531d9bccab1c04dd9"/></dir></dir></dir><dir name="."><file name="Changelog_payex.txt" hash="d8bba54533b8b245a48e33630107bf05"/></dir><dir name="js"><dir name="payex"><dir name="iwd_opc"><file name="social_security_number.js" hash="8be665ea511415c9a955db3454fc0110"/></dir><file name="social_security_number.js" hash="58e057aabbf97ae0506fd5c4522a36d2"/></dir></dir></target><target name="mageskin"><dir name="frontend"><dir name="base"><dir name="default"><dir name="images"><dir name="payex"><file name="american_express_64.png" hash="0e4379f8c5963b4eb550b1941b89821e"/><file name="diners_club_64.png" hash="76ad504729a6a86ed3be9a496a5def73"/><file name="financing-logo.gif" hash="601ac8ee1101dc6e83393c15b92f3761"/><file name="jcb_64.png" hash="79fd2798aa7c8695da293c25fa6e18a5"/><file name="mastercard_64.png" hash="a656e3028f69c593b4261555c75351d6"/><file name="masterpass-140.png" hash="b74662352d7a83ce5586ab26c3dafe91"/><file name="masterpass.png" hash="681673dd599a743a512a3697fc6576cc"/><file name="partpayment-logo.gif" hash="db8f8f8bcfb4decd106ff49dbe9a955e"/><file name="payex-invoice.png" hash="568683eca82952bf847e0b08d88274d7"/><file name="payex-small.gif" hash="b760e19d0024a994a0d07058038201db"/><file name="payex.gif" hash="b760e19d0024a994a0d07058038201db"/><file name="swish.png" hash="a21c66a591a13823a9b546a13f22c843"/><file name="visa_64.png" hash="2f263bca4b195b6b18eac60c5e889891"/><file name="ww_logo.png" hash="77f03db05e5c2c557fc7a69f778f94e1"/></dir></dir><dir name="css"><dir name="payex"><file name="masterpass.css" hash="9aabd17cdc8a0f58662d86581c418294"/></dir></dir></dir></dir></dir><dir name="adminhtml"><dir name="base"><dir name="default"><dir name="images"><dir name="payex"><file name="swish.png" hash="a21c66a591a13823a9b546a13f22c843"/></dir></dir><dir name="payex"><file name="payex-logo.png" hash="5b493d130ef51483a3190d1285380242"/><file name="payex_admin.css" hash="bd5d31f628944b6b2e338b2bfcbf64ac"/></dir></dir></dir></dir></target><target name="magelib"><dir name="Px"><file name="Px.php" hash="2324304980e6252284da2eab7def26b2"/><file name="parser.php" hash="cfa3dfa8be36ebbf5ca50c512b370f0f"/></dir></target></contents>
+    <compatible/>
+    <dependencies><required><php><min>5.2.0</min><max>6.0.0</max></php><extension><name>soap</name><min/><max/></extension></required></dependencies>
+</package>
