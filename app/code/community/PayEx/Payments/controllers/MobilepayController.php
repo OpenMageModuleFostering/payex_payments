@@ -1,11 +1,11 @@
 <?php
 
-class PayEx_Payments_GcController extends Mage_Core_Controller_Front_Action
+class PayEx_Payments_MobilepayController extends Mage_Core_Controller_Front_Action
 {
     public function _construct()
     {
         // Bootstrap PayEx Environment
-        Mage::getSingleton('payex/payment_GC');
+        Mage::getSingleton('payex/payment_mobilepay');
     }
 
     /**
@@ -14,6 +14,8 @@ class PayEx_Payments_GcController extends Mage_Core_Controller_Front_Action
      */
     public function redirectAction()
     {
+        Mage::helper('payex/tools')->addToDebug('Controller: redirect');
+
         // Load Order
         $order_id = Mage::getSingleton('checkout/session')->getLastRealOrderId();
 
@@ -55,10 +57,10 @@ class PayEx_Payments_GcController extends Mage_Core_Controller_Front_Action
             'description' => Mage::app()->getStore()->getName(),
             'clientIPAddress' => Mage::helper('core/http')->getRemoteAddr(),
             'clientIdentifier' => 'USERAGENT=' . Mage::helper('core/http')->getHttpUserAgent(),
-            'additionalValues' => $method->getConfigData('responsive') === '1' ? 'USECSS=RESPONSIVEDESIGN' : '',
+            'additionalValues' => 'RESPONSIVE=1&USEMOBILEPAY=True',
             'externalID' => '',
             'returnUrl' => Mage::getUrl('payex/payment/success', array('_secure' => true)),
-            'view' => 'GC',
+            'view' => 'CREDITCARD',
             'agreementRef' => '',
             'cancelUrl' => Mage::getUrl('payex/payment/cancel', array('_secure' => true)),
             'clientLanguage' => $method->getConfigData('clientlanguage')
@@ -91,12 +93,6 @@ class PayEx_Payments_GcController extends Mage_Core_Controller_Front_Action
 
         $order_ref = $result['orderRef'];
         $redirectUrl = $result['redirectUrl'];
-
-        // Add Order Lines and Orders Address
-        if ($method->getConfigData('checkoutinfo')) {
-            Mage::helper('payex/order')->addOrderLine($order_ref, $order);
-            Mage::helper('payex/order')->addOrderAddress($order_ref, $order);
-        }
 
         // Set Pending Payment status
         $order->setState(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, Mage::helper('payex')->__('The customer was redirected to PayEx.'));

@@ -3,30 +3,30 @@
 class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
 {
 
-	/**
-	 * Process Payment Transaction
-	 * @param Mage_Sales_Model_Order $order
-	 * @param array                  $fields
-	 *
-	 * @return Mage_Sales_Model_Order_Payment_Transaction|null
-	 * @throws Exception
-	 */
+    /**
+     * Process Payment Transaction
+     * @param Mage_Sales_Model_Order $order
+     * @param array                  $fields
+     *
+     * @return Mage_Sales_Model_Order_Payment_Transaction|null
+     * @throws Exception
+     */
     public function processPaymentTransaction(Mage_Sales_Model_Order $order, array $fields)
     {
         // Lookup Transaction
         $collection = Mage::getModel('sales/order_payment_transaction')->getCollection()
             ->addAttributeToFilter('txn_id', $fields['transactionNumber']);
         if (count($collection) > 0) {
-	        Mage::helper('payex/tools')->addToDebug(sprintf('Transaction %s already processed.', $fields['transactionNumber']), $order->getIncrementId());
+            Mage::helper('payex/tools')->addToDebug(sprintf('Transaction %s already processed.', $fields['transactionNumber']), $order->getIncrementId());
             return $collection->getFirstItem();
         }
 
-	    // Set Payment Transaction Id
+        // Set Payment Transaction Id
         $payment = $order->getPayment();
         $payment->setTransactionId($fields['transactionNumber']);
 
         /* Transaction statuses: 0=Sale, 1=Initialize, 2=Credit, 3=Authorize, 4=Cancel, 5=Failure, 6=Capture */
-	    $transaction_status = isset($fields['transactionStatus']) ? (int)$fields['transactionStatus'] : null;
+        $transaction_status = isset($fields['transactionStatus']) ? (int)$fields['transactionStatus'] : null;
         switch ($transaction_status) {
             case 1:
                 // From PayEx PIM:
@@ -38,11 +38,11 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
                     $transaction->setIsClosed(0);
                     $transaction->setAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
                     $transaction->setMessage($message);
-	                $transaction->save();
-	                break;
+                    $transaction->save();
+                    break;
                 }
 
-	            $message = Mage::helper('payex')->__('Transaction Status: %s.', $transaction_status);
+                $message = Mage::helper('payex')->__('Transaction Status: %s.', $transaction_status);
                 $transaction = $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_PAYMENT, null, true, $message);
                 $transaction->setAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
                 $transaction->setMessage($message);
@@ -54,7 +54,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
                 $transaction->setIsClosed(0);
                 $transaction->setAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
                 $transaction->setMessage($message);
-	            $transaction->save();
+                $transaction->save();
                 break;
             case 0;
             case 6:
@@ -63,14 +63,14 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
                 $transaction->setAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
                 $transaction->isFailsafe(true)->close(false);
                 $transaction->setMessage($message);
-	            $transaction->save();
+                $transaction->save();
                 break;
             case 2:
                 $message = Mage::helper('payex')->__('Detected an abnormal payment process (Transaction Status: %s).', $transaction_status);
                 $transaction = $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_PAYMENT, null, true, $message);
                 $transaction->setAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
                 $transaction->setMessage($message);
-	            $transaction->setIsCancel(true);
+                $transaction->setIsCancel(true);
                 $transaction->save();
                 break;
             case 4;
@@ -78,7 +78,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
                 $transaction = $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_PAYMENT, null, true);
                 $transaction->setAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
                 $transaction->setMessage($message);
-	            $transaction->setIsCancel(true);
+                $transaction->setIsCancel(true);
                 $transaction->save();
                 break;
             case 5;
@@ -87,7 +87,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
                 $transaction = $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_PAYMENT, null, true);
                 $transaction->setAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
                 $transaction->setMessage($message);
-	            $transaction->setIsCancel(true);
+                $transaction->setIsCancel(true);
                 $transaction->save();
                 break;
             default:
@@ -98,12 +98,12 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
                 break;
         }
 
-	    try {
-		    $order->save();
-		    Mage::helper('payex/tools')->addToDebug($message, $order->getIncrementId());
-	    } catch (Exception $e) {
-		    Mage::helper('payex/tools')->addToDebug('Error: ' . $e->getMessage(), $order->getIncrementId());
-	    }
+        try {
+            $order->save();
+            Mage::helper('payex/tools')->addToDebug($message, $order->getIncrementId());
+        } catch (Exception $e) {
+            Mage::helper('payex/tools')->addToDebug('Error: ' . $e->getMessage(), $order->getIncrementId());
+        }
 
         return $transaction;
     }
@@ -163,6 +163,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         if (!$order_id) {
             return false;
         }
+
         $collection = Mage::getModel('sales/order_payment_transaction')->getCollection()
             ->addOrderIdFilter($order_id)
             ->setOrder('transaction_id', 'ASC')
@@ -190,12 +191,14 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         } else {
             $creditmemo = $service->prepareCreditmemo();
         }
+
         $creditmemo->addComment(Mage::helper('payex')->__('Auto-generated from PayEx module'));
 
         // Refund
         if (!$online) {
             $creditmemo->setPaymentRefundDisallowed(true);
         }
+
         //$creditmemo->setRefundRequested(true);
         $invoice->getOrder()->setBaseTotalRefunded(0);
         $creditmemo->setBaseGrandTotal($amount);
@@ -206,6 +209,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         if ($transactionId) {
             $creditmemo->setTransactionId($transactionId);
         }
+
         // Save CreditMemo
         $transactionSave = Mage::getModel('core/resource_transaction')
             ->addObject($creditmemo)
@@ -213,6 +217,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         if ($creditmemo->getInvoice()) {
             $transactionSave->addObject($creditmemo->getInvoice());
         }
+
         $transactionSave->save();
 
         return $creditmemo;
@@ -235,35 +240,9 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         // Order amount calculated manually
         $amount = 0;
 
-        // add Order Items
-        $items = $order->getAllVisibleItems();
-        /** @var $item Mage_Sales_Model_Order_Item */
-        foreach ($items as $item) {
-            if ($item->getParentItem()) {
-                continue;
-            }
-
-            $amount += (int)(100 * $item->getRowTotalInclTax());
-        }
-
-        // add Shipping
-        if (!$order->getIsVirtual()) {
-            $shippingIncTax = $order->getShippingInclTax();
-            $amount += (int)(100 * $shippingIncTax);
-        }
-
-        // add Discount
-        $discountData = Mage::helper('payex/discount')->getOrderDiscountData($order);
-        $discountInclTax = (int) (100 * $discountData->getDiscountInclTax());
-        $amount += -1 * $discountInclTax;
-
-        // Add reward points
-        $amount += -1 * (int)(100 * $order->getBaseRewardCurrencyAmount());
-
-        // add Fee
-        $fee = $order->getPayexPaymentFee() + $order->getPayexPaymentFeeTax();
-        if ($fee > 0) {
-            $amount += (int)(100 * $fee);
+        $lines = $this->getOrderItems($order);
+        foreach ($lines as $line) {
+            $amount += (int)(100 * $line['price_with_tax']);
         }
 
         // Detect Rounding Issue
@@ -276,244 +255,12 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
             } else {
                 $rounding = -1 * ($rounded_control_amount - $rounded_total);
             }
+
             $rounding = sprintf("%.2f", $rounding);
         }
 
         $result = new Varien_Object();
         return $result->setAmount($rounded_control_amount)->setRounding($rounding);
-    }
-
-    /**
-     * Add PayEx Single Order Line
-     * @param string $orderRef
-     * @param Mage_Sales_Model_Order $order
-     * @return bool
-     */
-    public function addOrderLine($orderRef, $order)
-    {
-        // add Order Items
-        $items = $order->getAllVisibleItems();
-        $i = 1;
-        /** @var $item Mage_Sales_Model_Order_Item */
-        foreach ($items as $item) {
-            $itemQty = (int)$item->getQtyOrdered();
-            $priceWithTax = $item->getRowTotalInclTax();
-            $priceWithoutTax = $item->getRowTotal();
-            $taxPercent = (($priceWithTax / $priceWithoutTax) - 1) * 100; // works for all types
-            $taxPrice = $priceWithTax - $priceWithoutTax;
-
-            $params = array(
-                'accountNumber' => '',
-                'orderRef' => $orderRef,
-                'itemNumber' => $i,
-                'itemDescription1' => $item->getName(),
-                'itemDescription2' => '',
-                'itemDescription3' => '',
-                'itemDescription4' => '',
-                'itemDescription5' => '',
-                'quantity' => $itemQty,
-                'amount' => (int)(100 * $priceWithTax), //must include tax
-                'vatPrice' => (int)(100 * $taxPrice),
-                'vatPercent' => (int)(100 * $taxPercent)
-            );
-
-            $result = Mage::helper('payex/api')->getPx()->AddSingleOrderLine2($params);
-            Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddSingleOrderLine2');
-            $i++;
-        }
-
-        // add Shipping
-        if (!$order->getIsVirtual()) {
-            $shippingExclTax = (int) (100 * $order->getShippingAmount());
-            $shippingIncTax = (int) (100 * $order->getShippingInclTax());
-            $shippingTax = $shippingIncTax - $shippingExclTax;
-
-            // find out tax-rate for the shipping
-            if ((float) $shippingIncTax && (float) $shippingExclTax) {
-                $shippingTaxRate = (($shippingIncTax / $shippingExclTax) - 1) * 100;
-            } else {
-                $shippingTaxRate = 0;
-            }
-
-            $params = array(
-                'accountNumber' => '',
-                'orderRef' => $orderRef,
-                'itemNumber' => $i,
-                'itemDescription1' => $order->getShippingDescription(),
-                'itemDescription2' => '',
-                'itemDescription3' => '',
-                'itemDescription4' => '',
-                'itemDescription5' => '',
-                'quantity' => 1,
-                'amount' => (int)($shippingIncTax),
-                'vatPrice' => (int)($shippingTax),
-                'vatPercent' => (int)(100 * $shippingTaxRate)
-            );
-
-            $result = Mage::helper('payex/api')->getPx()->AddSingleOrderLine2($params);
-            Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddSingleOrderLine2');
-            $i++;
-        }
-
-        // add Discount
-        $discountData = Mage::helper('payex/discount')->getOrderDiscountData($order);
-        if (abs($discountData->getDiscountInclTax()) > 0) {
-            $discountInclTax = (int) (100 * $discountData->getDiscountInclTax());
-            $discountExclTax = (int) (100 * $discountData->getDiscountExclTax());
-            $discountVatAmount = $discountInclTax - $discountExclTax;
-            $discountVatPercent = (($discountInclTax / $discountExclTax) - 1) * 100;
-
-            $params = array(
-                'accountNumber' => '',
-                'orderRef' => $orderRef,
-                'itemNumber' => $i,
-                'itemDescription1' => ($order->getDiscountDescription() !== null) ? Mage::helper('sales')->__('Discount (%s)', $order->getDiscountDescription()) : Mage::helper('sales')->__('Discount'),
-                'itemDescription2' => '',
-                'itemDescription3' => '',
-                'itemDescription4' => '',
-                'itemDescription5' => '',
-                'quantity' => 1,
-                'amount' => -1 * (int)($discountInclTax),
-                'vatPrice' => -1 * (int) ($discountVatAmount),
-                'vatPercent' => (int) (100 * $discountVatPercent)
-            );
-
-            $result = Mage::helper('payex/api')->getPx()->AddSingleOrderLine2($params);
-            Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddSingleOrderLine2');
-            $i++;
-        }
-
-        // add Payment Fee
-        if ((float)$order->getPayexPaymentFee() > 0) {
-            $feeExclTax = $order->getPayexPaymentFee();
-            $feeTax = $order->getPayexPaymentFeeTax();
-            $feeIncTax = $feeExclTax + $feeTax;
-
-            // find out tax-rate for the fee
-            if ($feeIncTax > 0 && $feeExclTax > 0) {
-                $feeTaxRate = Mage::app()->getStore()->roundPrice((($feeIncTax / $feeExclTax) - 1) * 100);
-            } else {
-                $feeTaxRate = 0;
-            }
-
-            $params = array(
-                'accountNumber' => '',
-                'orderRef' => $orderRef,
-                'itemNumber' => $i,
-                'itemDescription1' => Mage::helper('payex')->__('Payment fee'),
-                'itemDescription2' => '',
-                'itemDescription3' => '',
-                'itemDescription4' => '',
-                'itemDescription5' => '',
-                'quantity' => 1,
-                'amount' => (int)(100 * $feeIncTax), //must include tax
-                'vatPrice' => (int) (100 * $feeTax),
-                'vatPercent' =>  (int) (100 * $feeTaxRate)
-            );
-
-            $result = Mage::helper('payex/api')->getPx()->AddSingleOrderLine2($params);
-            Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddSingleOrderLine2');
-            $i++;
-        }
-
-        // Add reward points
-        if ((float)$order->getBaseRewardCurrencyAmount() > 0) {
-            $params = array(
-                'accountNumber' => '',
-                'orderRef' => $orderRef,
-                'itemNumber' => $i,
-                'itemDescription1' => Mage::helper('payex')->__('Reward points'),
-                'itemDescription2' => '',
-                'itemDescription3' => '',
-                'itemDescription4' => '',
-                'itemDescription5' => '',
-                'quantity' => 1,
-                'amount' => -1 * (int)(100 * $order->getBaseRewardCurrencyAmount()), //must include tax
-                'vatPrice' => 0,
-                'vatPercent' => 0
-            );
-
-            $result = Mage::helper('payex/api')->getPx()->AddSingleOrderLine2($params);
-            Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddSingleOrderLine2');
-            $i++;
-        }
-
-        return true;
-    }
-
-    /**
-     * Add Payex Order Address
-     * @param $orderRef
-     * @param Mage_Sales_Model_Order $order
-     * @return bool
-     */
-    public function addOrderAddress($orderRef, $order)
-    {
-        $billingAddress = $order->getBillingAddress()->getStreet();
-        $billingCountryCode = $order->getBillingAddress()->getCountry();
-        $billingCountry = Mage::getModel('directory/country')->load($billingCountryCode)->getName();
-
-        $params = array(
-            'accountNumber' => '',
-            'orderRef' => $orderRef,
-            'billingFirstName' => $order->getBillingAddress()->getFirstname(),
-            'billingLastName' => $order->getBillingAddress()->getLastname(),
-            'billingAddress1' => $billingAddress[0],
-            'billingAddress2' => (isset($billingAddress[1])) ? $billingAddress[1] : '',
-            'billingAddress3' => '',
-            'billingPostNumber' => (string)$order->getBillingAddress()->getPostcode(),
-            'billingCity' => (string)$order->getBillingAddress()->getCity(),
-            'billingState' => (string)$order->getBillingAddress()->getRegion(),
-            'billingCountry' => $billingCountry,
-            'billingCountryCode' => $billingCountryCode,
-            'billingEmail' => (string)$order->getBillingAddress()->getEmail(),
-            'billingPhone' => (string)$order->getBillingAddress()->getTelephone(),
-            'billingGsm' => '',
-        );
-
-        // add Shipping
-        $shipping_params = array(
-            'deliveryFirstName' => '',
-            'deliveryLastName' => '',
-            'deliveryAddress1' => '',
-            'deliveryAddress2' => '',
-            'deliveryAddress3' => '',
-            'deliveryPostNumber' => '',
-            'deliveryCity' => '',
-            'deliveryState' => '',
-            'deliveryCountry' => '',
-            'deliveryCountryCode' => '',
-            'deliveryEmail' => '',
-            'deliveryPhone' => '',
-            'deliveryGsm' => '',
-        );
-
-        if (!$order->getIsVirtual()) {
-            $deliveryAddress = $order->getShippingAddress()->getStreet();
-            $deliveryCountryCode = $order->getShippingAddress()->getCountry();
-            $deliveryCountry = Mage::getModel('directory/country')->load($deliveryCountryCode)->getName();
-
-            $shipping_params = array(
-                'deliveryFirstName' => $order->getShippingAddress()->getFirstname(),
-                'deliveryLastName' => $order->getShippingAddress()->getLastname(),
-                'deliveryAddress1' => $deliveryAddress[0],
-                'deliveryAddress2' => (isset($deliveryAddress[1])) ? $deliveryAddress[1] : '',
-                'deliveryAddress3' => '',
-                'deliveryPostNumber' => (string)$order->getShippingAddress()->getPostcode(),
-                'deliveryCity' => (string)$order->getShippingAddress()->getCity(),
-                'deliveryState' => (string)$order->getShippingAddress()->getRegion(),
-                'deliveryCountry' => $deliveryCountry,
-                'deliveryCountryCode' => $deliveryCountryCode,
-                'deliveryEmail' => (string)$order->getShippingAddress()->getEmail(),
-                'deliveryPhone' => (string)$order->getShippingAddress()->getTelephone(),
-                'deliveryGsm' => '',
-            );
-        }
-        $params += $shipping_params;
-
-        $result = Mage::helper('payex/api')->getPx()->AddOrderAddress2($params);
-        Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddOrderAddress2');
-        return true;
     }
 
     /**
@@ -548,7 +295,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
             }
 
             $ShoppingCartItem = $dom->createElement('ShoppingCartItem');
-            $ShoppingCartItem->appendChild($dom->createElement('Description', $item->getName()));
+            $ShoppingCartItem->appendChild($dom->createElement('Description', htmlentities($item->getName())));
             $ShoppingCartItem->appendChild($dom->createElement('Quantity', (float)$qty));
             $ShoppingCartItem->appendChild($dom->createElement('Value', (int)bcmul($product->getFinalPrice(), 100)));
             $ShoppingCartItem->appendChild($dom->createElement('ImageURL', $product->getThumbnailUrl()));
@@ -566,11 +313,28 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
      */
     public function getInvoiceExtraPrintBlocksXML($order)
     {
-        mb_regex_encoding('utf-8');
-        $replace_illegal = $order->getPayment()->getMethodInstance()->getConfigData('replace_illegal');
-        $replacement_char = $order->getPayment()->getMethodInstance()->getConfigData('replacement_char');
-        if (empty($replacement_char)) {
-            $replacement_char = '-';
+        $lines = $this->getOrderItems($order);
+
+        // Replace illegal characters of product names
+        $replace_illegal = $order->getPayment()->getMethodInstance()
+            ->getConfigData('replace_illegal', $order->getStoreId());
+        if ($replace_illegal) {
+            $replacement_char = $order->getPayment()->getMethodInstance()
+                ->getConfigData('replacement_char', $order->getStoreId());
+            if (empty($replacement_char)) {
+                $replacement_char = '-';
+            }
+
+            $lines = array_map(
+                function ($value) use ($replacement_char) {
+                if (isset($value['name'])) {
+                    mb_regex_encoding('utf-8');
+                    $value['name'] = mb_ereg_replace('[^a-zA-Z0-9_:!#=?\[\]@{}´ %-\/À-ÖØ-öø-ú]', $replacement_char, $value['name']);
+                }
+
+                return $value;
+                }, $lines
+            );
         }
 
         $dom = new DOMDocument('1.0', 'utf-8');
@@ -583,100 +347,14 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         $OnlineInvoice->appendChild($OrderLines);
 
         // Add Order Lines
-        $items = $order->getAllVisibleItems();
-        /** @var $item Mage_Sales_Model_Order_Item */
-        foreach ($items as $item) {
-            $itemQty = (int)$item->getQtyOrdered();
-            $priceWithTax = $item->getRowTotalInclTax();
-            $priceWithoutTax = $item->getRowTotal();
-            $taxPercent = round((($priceWithTax / $priceWithoutTax) - 1) * 100); // works for all types
-            $taxPrice = $priceWithTax - $priceWithoutTax;
-
+        foreach ($lines as $line) {
             $OrderLine = $dom->createElement('OrderLine');
-            $OrderLine->appendChild($dom->createElement('Product', trim(!$replace_illegal ? $item->getName() : mb_ereg_replace('[^a-zA-Z0-9_:!#=?\[\]@{}´ %-\/À-ÖØ-öø-ú]', $replacement_char, $item->getName()))));
-            $OrderLine->appendChild($dom->createElement('Qty', $itemQty));
-            $OrderLine->appendChild($dom->createElement('UnitPrice', sprintf("%.2f", $priceWithoutTax / $itemQty)));
-            $OrderLine->appendChild($dom->createElement('VatRate', sprintf("%.2f", $taxPercent)));
-            $OrderLine->appendChild($dom->createElement('VatAmount', sprintf("%.2f", $taxPrice)));
-            $OrderLine->appendChild($dom->createElement('Amount', sprintf("%.2f", $priceWithTax)));
-            $OrderLines->appendChild($OrderLine);
-        }
-
-        // Add Shipping Line
-        if (!$order->getIsVirtual()) {
-            $shippingExclTax = $order->getShippingAmount();
-            $shippingIncTax = $order->getShippingInclTax();
-            $shippingTax = $shippingIncTax - $shippingExclTax;
-
-            // find out tax-rate for the shipping
-            if ((float) $shippingIncTax && (float) $shippingExclTax) {
-                $shippingTaxRate = round((($shippingIncTax / $shippingExclTax) - 1) * 100);
-            } else {
-                $shippingTaxRate = 0;
-            }
-
-            $OrderLine = $dom->createElement('OrderLine');
-            $OrderLine->appendChild($dom->createElement('Product', trim(!$replace_illegal ? $order->getShippingDescription() : mb_ereg_replace('[^a-zA-Z0-9_:!#=?\[\]@{}´ %-\/À-ÖØ-öø-ú]', $replacement_char, $order->getShippingDescription()))));
-            $OrderLine->appendChild($dom->createElement('Qty', 1));
-            $OrderLine->appendChild($dom->createElement('UnitPrice', sprintf("%.2f", $shippingExclTax)));
-            $OrderLine->appendChild($dom->createElement('VatRate', sprintf("%.2f", $shippingTaxRate)));
-            $OrderLine->appendChild($dom->createElement('VatAmount', sprintf("%.2f", $shippingTax)));
-            $OrderLine->appendChild($dom->createElement('Amount', sprintf("%.2f", $shippingIncTax)));
-            $OrderLines->appendChild($OrderLine);
-        }
-
-        // add Payment Fee
-        $fee = $order->getPayexPaymentFee();
-        if ($fee > 0) {
-            $feeExclTax = $order->getPayexPaymentFee();
-            $feeTax = $order->getPayexPaymentFeeTax();
-            $feeIncTax = $feeExclTax + $feeTax;
-
-            // find out tax-rate for the fee
-            if ($feeIncTax > 0 && $feeExclTax > 0) {
-                $feeTaxRate = round((($feeIncTax / $feeExclTax) - 1) * 100);
-            } else {
-                $feeTaxRate = 0;
-            }
-
-            $OrderLine = $dom->createElement('OrderLine');
-            $OrderLine->appendChild($dom->createElement('Product', Mage::helper('payex')->__('Payment fee')));
-            $OrderLine->appendChild($dom->createElement('Qty', 1));
-            $OrderLine->appendChild($dom->createElement('UnitPrice', sprintf("%.2f", $feeExclTax)));
-            $OrderLine->appendChild($dom->createElement('VatRate', sprintf("%.2f", $feeTaxRate)));
-            $OrderLine->appendChild($dom->createElement('VatAmount', sprintf("%.2f", $feeTax)));
-            $OrderLine->appendChild($dom->createElement('Amount', sprintf("%.2f", $feeIncTax)));
-            $OrderLines->appendChild($OrderLine);
-        }
-
-        // add Discount
-        $discountData = Mage::helper('payex/discount')->getOrderDiscountData($order);
-        if (abs($discountData->getDiscountInclTax()) > 0) {
-            $discountInclTax = $discountData->getDiscountInclTax();
-            $discountExclTax = $discountData->getDiscountExclTax();
-            $discountVatAmount = $discountInclTax - $discountExclTax;
-            $discountVatPercent = round((($discountInclTax / $discountExclTax) - 1) * 100);
-            $discount_description = ($order->getDiscountDescription() !== null) ? Mage::helper('sales')->__('Discount (%s)', $order->getDiscountDescription()) : Mage::helper('sales')->__('Discount');
-
-            $OrderLine = $dom->createElement('OrderLine');
-            $OrderLine->appendChild($dom->createElement('Product', trim(!$replace_illegal ? $discount_description : mb_ereg_replace('[^a-zA-Z0-9_:!#=?\[\]@{}´ %-\/À-ÖØ-öø-ú]', $replacement_char, $discount_description))));
-            $OrderLine->appendChild($dom->createElement('Qty', 1));
-            $OrderLine->appendChild($dom->createElement('UnitPrice', sprintf("%.2f", -1 * $discountExclTax)));
-            $OrderLine->appendChild($dom->createElement('VatRate', sprintf("%.2f", $discountVatPercent)));
-            $OrderLine->appendChild($dom->createElement('VatAmount', sprintf("%.2f", -1 * $discountVatAmount)));
-            $OrderLine->appendChild($dom->createElement('Amount', sprintf("%.2f", -1 * $discountInclTax)));
-            $OrderLines->appendChild($OrderLine);
-        }
-
-        // Add reward points
-        if ((float)$order->getBaseRewardCurrencyAmount() > 0) {
-            $OrderLine = $dom->createElement('OrderLine');
-            $OrderLine->appendChild($dom->createElement('Product', Mage::helper('payex')->__('Reward points')));
-            $OrderLine->appendChild($dom->createElement('Qty', 1));
-            $OrderLine->appendChild($dom->createElement('UnitPrice', -1 * $order->getBaseRewardCurrencyAmount()));
-            $OrderLine->appendChild($dom->createElement('VatRate', 0));
-            $OrderLine->appendChild($dom->createElement('VatAmount', 0));
-            $OrderLine->appendChild($dom->createElement('Amount', -1 * $order->getBaseRewardCurrencyAmount()));
+            $OrderLine->appendChild($dom->createElement('Product', htmlentities($line['name'])));
+            $OrderLine->appendChild($dom->createElement('Qty', $line['qty']));
+            $OrderLine->appendChild($dom->createElement('UnitPrice', sprintf("%.2f", $line['price_without_tax'] / $line['qty'])));
+            $OrderLine->appendChild($dom->createElement('VatRate', sprintf("%.2f", $line['tax_percent'])));
+            $OrderLine->appendChild($dom->createElement('VatAmount', sprintf("%.2f", $line['tax_price'])));
+            $OrderLine->appendChild($dom->createElement('Amount', sprintf("%.2f", $line['price_with_tax'])));
             $OrderLines->appendChild($OrderLine);
         }
 
@@ -688,7 +366,8 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
      * @param $status
      * @return Mage_Sales_Model_Order_Status
      */
-    public function getAssignedStatus($status) {
+    public function getAssignedStatus($status) 
+    {
         $status = Mage::getModel('sales/order_status')
             ->getCollection()
             ->joinStates()
@@ -702,7 +381,8 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
      * @param string|int $transaction_id
      * @return array
      */
-    public function getInvoiceLink($transaction_id) {
+    public function getInvoiceLink($transaction_id) 
+    {
         // Call PxOrder.InvoiceLinkGet
         $params = array (
             'accountNumber' => '',
@@ -731,7 +411,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         $card_type = '';
         if (!empty($transaction['cardProduct'])) {
             $card_type = $transaction['cardProduct'];
-        } elseif (!empty( $transaction['paymentMethod'])) {
+        } elseif (!empty($transaction['paymentMethod'])) {
             $card_type = $transaction['paymentMethod'];
         }
 
@@ -766,10 +446,183 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
     public function getFormattedCC(array $transaction)
     {
         $details = $this->getCCDetails($transaction);
-        return sprintf('%s %s %s', strtoupper(
-            $details->getType()),
+        return sprintf(
+            '%s %s %s', strtoupper(
+                $details->getType()
+            ),
             $details->getMaskedNumber(),
             date('Y/m', strtotime($details->getExpireDate()))
         );
+    }
+
+    /**
+     * Get Order Items
+     * @param Mage_Sales_Model_Order $order
+     * @return array
+     */
+    public function getOrderItems($order)
+    {
+        $lines = array();
+        $items = $order->getAllVisibleItems();
+        foreach ($items as $item) {
+            /** @var Mage_Sales_Model_Order_Item $item */
+            $itemQty = (int)$item->getQtyOrdered();
+            $priceWithTax = $item->getRowTotalInclTax();
+            $priceWithoutTax = $item->getRowTotal();
+            $taxPercent = $priceWithoutTax > 0 ? (($priceWithTax / $priceWithoutTax) - 1) * 100 : 0; // works for all types
+            $taxPrice = $priceWithTax - $priceWithoutTax;
+            $lines[] = array(
+                'type' => 'product',
+                'name' => $item->getName(),
+                'qty' => $itemQty,
+                'price_with_tax' => $priceWithTax,
+                'price_without_tax' => $priceWithoutTax,
+                'tax_price' => $taxPrice,
+                'tax_percent' => $taxPercent
+            );
+        }
+
+        // add Shipping
+        if (!$order->getIsVirtual()) {
+            $shippingExclTax = $order->getShippingAmount();
+            $shippingIncTax = $order->getShippingInclTax();
+            $shippingTax = $shippingIncTax - $shippingExclTax;
+            $shippingTaxRate = $shippingExclTax > 0 ? (($shippingIncTax / $shippingExclTax) - 1) * 100 : 0;
+            $lines[] = array(
+                'type' => 'shipping',
+                'name' => $order->getShippingDescription(),
+                'qty' => 1,
+                'price_with_tax' => $shippingIncTax,
+                'price_without_tax' => $shippingExclTax,
+                'tax_price' => $shippingTax,
+                'tax_percent' => $shippingTaxRate
+            );
+        }
+
+        // add Discount
+        $discountData = Mage::helper('payex/discount')->getOrderDiscountData($order);
+        if (abs($discountData->getDiscountInclTax()) > 0) {
+            $discountInclTax = $discountData->getDiscountInclTax();
+            $discountExclTax = $discountData->getDiscountExclTax();
+            $discountVatAmount = $discountInclTax - $discountExclTax;
+            $discountVatPercent = round((($discountInclTax / $discountExclTax) - 1) * 100);
+            $lines[] = array(
+                'type' => 'discount',
+                'name' => Mage::helper('sales')->__('Discount (%s)', $order->getDiscountDescription()),
+                'qty' => 1,
+                'price_with_tax' => -1 * $discountInclTax,
+                'price_without_tax' => -1 * $discountExclTax,
+                'tax_price' => -1 * $discountVatAmount,
+                'tax_percent' => $discountVatPercent
+            );
+        }
+
+        // Add reward points
+        if ((float)$order->getBaseRewardCurrencyAmount() > 0) {
+            $lines[] = array(
+                'type' => 'reward_points',
+                'name' => Mage::helper('payex')->__('Reward points'),
+                'qty' => 1,
+                'price_with_tax' => -1 * $order->getBaseRewardCurrencyAmount(),
+                'price_without_tax' => -1 * $order->getBaseRewardCurrencyAmount(),
+                'tax_price' => 0,
+                'tax_percent' => 0
+            );
+        }
+
+        // add Payment Fee
+        if ($order->getPayexPaymentFee() > 0 &&
+            in_array(
+                $order->getPayment()->getMethod(), array(
+                'payex_financing',
+                'payex_partpayment',
+                'payex_invoice'
+                )
+            )) {
+            $feeExclTax = $order->getPayexPaymentFee();
+            $feeTax = $order->getPayexPaymentFeeTax();
+            $feeIncTax = $feeExclTax + $feeTax;
+            $feeTaxRate = $feeExclTax > 0 ? (($feeIncTax / $feeExclTax) - 1) * 100 : 0;
+
+            $lines[] = array(
+                'type' => 'fee',
+                'name' => Mage::helper('payex')->__('Payment Fee'),
+                'qty' => 1,
+                'price_with_tax' => $feeIncTax,
+                'price_without_tax' => $feeExclTax,
+                'tax_price' => $feeTax,
+                'tax_percent' => $feeTaxRate
+            );
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Prepare Address Info
+     * @param Mage_Sales_Model_Order $order
+     * @return array
+     */
+    public function getAddressInfo($order)
+    {
+        $billingAddress = $order->getBillingAddress()->getStreet();
+        $billingCountryCode = $order->getBillingAddress()->getCountry();
+        $billingCountry = Mage::getModel('directory/country')->load($billingCountryCode)->getName();
+
+        $params = array(
+            'billingFirstName' => $order->getBillingAddress()->getFirstname(),
+            'billingLastName' => $order->getBillingAddress()->getLastname(),
+            'billingAddress1' => $billingAddress[0],
+            'billingAddress2' => (isset($billingAddress[1])) ? $billingAddress[1] : '',
+            'billingAddress3' => '',
+            'billingPostNumber' => (string)$order->getBillingAddress()->getPostcode(),
+            'billingCity' => (string)$order->getBillingAddress()->getCity(),
+            'billingState' => (string)$order->getBillingAddress()->getRegion(),
+            'billingCountry' => $billingCountry,
+            'billingCountryCode' => $billingCountryCode,
+            'billingEmail' => (string)$order->getBillingAddress()->getEmail(),
+            'billingPhone' => (string)$order->getBillingAddress()->getTelephone(),
+            'billingGsm' => '',
+            'deliveryFirstName' => '',
+            'deliveryLastName' => '',
+            'deliveryAddress1' => '',
+            'deliveryAddress2' => '',
+            'deliveryAddress3' => '',
+            'deliveryPostNumber' => '',
+            'deliveryCity' => '',
+            'deliveryState' => '',
+            'deliveryCountry' => '',
+            'deliveryCountryCode' => '',
+            'deliveryEmail' => '',
+            'deliveryPhone' => '',
+            'deliveryGsm' => '',
+        );
+
+        // add Shipping
+        if (!$order->getIsVirtual()) {
+            $deliveryAddress = $order->getShippingAddress()->getStreet();
+            $deliveryCountryCode = $order->getShippingAddress()->getCountry();
+            $deliveryCountry = Mage::getModel('directory/country')->load($deliveryCountryCode)->getName();
+
+            $params = array_merge(
+                $params, array(
+                'deliveryFirstName' => $order->getShippingAddress()->getFirstname(),
+                'deliveryLastName' => $order->getShippingAddress()->getLastname(),
+                'deliveryAddress1' => $deliveryAddress[0],
+                'deliveryAddress2' => (isset($deliveryAddress[1])) ? $deliveryAddress[1] : '',
+                'deliveryAddress3' => '',
+                'deliveryPostNumber' => (string)$order->getShippingAddress()->getPostcode(),
+                'deliveryCity' => (string)$order->getShippingAddress()->getCity(),
+                'deliveryState' => (string)$order->getShippingAddress()->getRegion(),
+                'deliveryCountry' => $deliveryCountry,
+                'deliveryCountryCode' => $deliveryCountryCode,
+                'deliveryEmail' => (string)$order->getShippingAddress()->getEmail(),
+                'deliveryPhone' => (string)$order->getShippingAddress()->getTelephone(),
+                'deliveryGsm' => '',
+                )
+            );
+        }
+
+        return $params;
     }
 }

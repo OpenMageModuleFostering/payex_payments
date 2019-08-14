@@ -1,56 +1,39 @@
 <?php
 
-class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_Abstract
+class PayEx_Payments_Model_Payment_Mobilepay extends PayEx_Payments_Model_Payment_Abstract
 {
+    /**
+     * Payment Method Code
+     */
+    const METHOD_CODE = 'payex_mobilepay';
+
     /**
      * Payment method code
      */
-    public $_code = 'payex_invoice';
+    public $_code = self::METHOD_CODE;
 
     /**
      * Availability options
      */
     protected $_isGateway = true;
+    protected $_canOrder = true;
     protected $_canAuthorize = true;
     protected $_canCapture = true;
     protected $_canCapturePartial = false;
     protected $_canRefund = true;
-    protected $_canRefundInvoicePartial = false;
+    protected $_canRefundInvoicePartial = true;
     protected $_canVoid = true;
     protected $_canUseInternal = true;
     protected $_canUseCheckout = true;
     protected $_canUseForMultishipping = false;
+    protected $_isInitializeNeeded = false;
     protected $_canFetchTransactionInfo = true;
 
     /**
      * Payment method blocks
      */
-    protected $_infoBlockType = 'payex/info_invoice';
-    protected $_formBlockType = 'payex/form_invoice';
-
-    /**
-     * Get initialized flag status
-     * @return true
-     */
-    public function isInitializeNeeded()
-    {
-        return true;
-    }
-
-    /**
-     * Instantiate state and set it to state onject
-     * @param  $paymentAction
-     * @param  $stateObject
-     * @return void
-     */
-    public function initialize($paymentAction, $stateObject)
-    {
-        // Set Initial Order Status
-        $state = Mage_Sales_Model_Order::STATE_NEW;
-        $stateObject->setState($state);
-        $stateObject->setStatus($state);
-        $stateObject->setIsNotified(false);
-    }
+    protected $_infoBlockType = 'payex/info_mobilepay';
+    protected $_formBlockType = 'payex/form_mobilepay';
 
     /**
      * Get config action to process initialization
@@ -58,13 +41,12 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
      */
     public function getConfigPaymentAction()
     {
-        $paymentAction = $this->getConfigData('payment_action');
-        return empty($paymentAction) ? true : $paymentAction;
+        return Mage_Payment_Model_Method_Abstract::ACTION_ORDER;
     }
 
     /**
      * Check whether payment method can be used
-     * @param Mage_Sales_Model_Quote
+     * @param Mage_Sales_Model_Quote $quote
      * @return bool
      */
     public function isAvailable($quote = null)
@@ -83,80 +65,35 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
     }
 
     /**
+     * Order payment method
+     *
+     * @param Varien_Object $payment
+     * @param float $amount
+     *
+     * @return $this
+     */
+    public function order(Varien_Object $payment, $amount)
+    {
+        Mage::helper('payex/tools')->addToDebug('Action: Order');
+        parent::order($payment, $amount);
+
+        // Set state
+        /** @var Mage_Sales_Model_Order $order */
+        $order = $payment->getOrder();
+        $order->setState(Mage_Sales_Model_Order::STATE_NEW, true);
+
+        $payment->setSkipOrderProcessing(true);
+        return $this;
+    }
+
+    /**
      * Validate
      * @return bool
      */
     public function validate()
     {
         Mage::helper('payex/tools')->addToDebug('Action: Validate');
-
-        // Credit Check is disabled
-        if (!$this->getConfigData('credit_check')) {
-            return true;
-        }
-
-        // Get Total Amount
-        $amount = $this->getQuote()->getGrandTotal();
-
-        // Get Invoice Type
-        $type = Mage::app()->getRequest()->getParam('pxinvoice_method');
-        switch ($type) {
-            case 'private':
-                $ssn = Mage::app()->getRequest()->getParam('socialSecurityNumber');
-                $firstName = Mage::app()->getRequest()->getParam('firstName');
-                $lastName = Mage::app()->getRequest()->getParam('lastName');
-
-                // Call PxVerification.CreditCheckPrivate
-                $params = array(
-                    'accountNumber' => '',
-                    'countryCode' => $this->getQuote()->getBillingAddress()->getCountry(),
-                    'socialSecurityNumber' => $ssn,
-                    'firstName' => $firstName,
-                    'lastName' => $lastName,
-                    'amount' => round($amount * 100),
-                    'clientIPAddress' => Mage::helper('core/http')->getRemoteAddr()
-                );
-                $status = Mage::helper('payex/api')->getPx()->CreditCheckPrivate2($params);
-                Mage::helper('payex/tools')->addToDebug('PxVerification.CreditCheckPrivate2:' . $status['description']);
-                break;
-            case 'corporate':
-                $orgnum = Mage::app()->getRequest()->getParam('organizationNumber');
-
-                // Call PxVerification.CreditCheckCorporate
-                $params = array(
-                    'accountNumber' => '',
-                    'countryCode' => $this->getQuote()->getBillingAddress()->getCountry(),
-                    'organizationNumber' => $orgnum,
-                    'amount' => round($amount * 100)
-                );
-                $status = Mage::helper('payex/api')->getPx()->CreditCheckCorporate2($params);
-                Mage::helper('payex/tools')->addToDebug('PxVerification.CreditCheckCorporate:' . $status['description']);
-                break;
-            default:
-                $status = array();
-                break;
-        }
-
-        if ($status['code'] == 'OK' && $status['description'] == 'OK' && $status['errorCode'] == 'OK') {
-            // Check if credit check went ok
-            if ($status['creditStatus'] === 'True') {
-                $this->getCheckout()->setCreditData($status);
-                Mage::helper('payex/tools')->addToDebug('Credit status: ok');
-                return true;
-            } elseif ($this->getConfigData('unapproved')) {
-                // Allow unapproved
-                $this->getCheckout()->setCreditData($status);
-                Mage::helper('payex/tools')->addToDebug('Credit status: not approved. Ignore this.');
-            } else {
-                // Declining payment
-                Mage::helper('payex/tools')->addToDebug('Credit status: not approved. Abort payment.');
-                Mage::throwException('Unfortunately PayEx did not grant you Invoice credit. Please try other means of payment');
-            }
-        }
-
-        // Show Error Message
-        Mage::helper('payex/tools')->throwPayExException($status, 'PxVerification.CreditCheck');
-        return false;
+        return parent::validate();
     }
 
     /**
@@ -166,15 +103,7 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
     public function getOrderPlaceRedirectUrl()
     {
         Mage::helper('payex/tools')->addToDebug('Action: getOrderPlaceRedirectUrl');
-
-        // Save Data
-        $method = Mage::app()->getRequest()->getParam('pxinvoice_method');
-        $this->getCheckout()->setMethod($method);
-
-        $ssn = ($method === 'private') ? Mage::app()->getRequest()->getParam('socialSecurityNumber') : Mage::app()->getRequest()->getParam('organizationNumber');
-        $this->getCheckout()->setSocialSecurtyNumber($ssn);
-
-        return Mage::getUrl('payex/invoice/redirect', array('_secure' => true));
+        return Mage::getUrl('payex/mobilepay/redirect', array('_secure' => true));
     }
 
     /**
@@ -365,7 +294,7 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
             $order_id = $payment->getOrder()->getId();
         }
 
-        // Call PxOrder.Credit5
+        // Call PXOrder.PXOrder.Credit5
         $params = array(
             'accountNumber' => '',
             'transactionNumber' => $transactionNumber,
@@ -444,6 +373,20 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
         Mage::helper('payex/tools')->throwPayExException($details, 'GetTransactionDetails2');
     }
 
+    /**
+     * Create Payment Block
+     * @param $name
+     * @return mixed
+     */
+    /* public function createFormBlock($name)
+    {
+        $block = $this->getLayout()->createBlock('payex/form', $name)
+            ->setMethod('payex')
+            ->setPayment($this->getPayment())
+            ->setTemplate('payex/form.phtml');
+        return $block;
+    } */
+
     public function getStandardCheckoutFormFields()
     {
         return array();
@@ -493,6 +436,7 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
     {
         return $this->_canCapture;
     }
+
 
     public function canFetchTransactionInfo()
     {

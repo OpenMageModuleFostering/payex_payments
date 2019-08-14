@@ -83,13 +83,45 @@ class PayEx_Payments_WywalletController extends Mage_Core_Controller_Front_Actio
             $this->_redirect('checkout/cart');
             return;
         }
+
         $order_ref = $result['orderRef'];
         $redirectUrl = $result['redirectUrl'];
 
         // Add Order Lines and Orders Address
         if ($method->getConfigData('checkoutinfo')) {
-            Mage::helper('payex/order')->addOrderLine($order_ref, $order);
-            Mage::helper('payex/order')->addOrderAddress($order_ref, $order);
+            // Add Order Items
+            $items = Mage::helper('payex/order')->getOrderItems($order);
+            foreach ($items as $index => $item) {
+                // Call PxOrder.AddSingleOrderLine2
+                $params = array(
+                    'accountNumber' => '',
+                    'orderRef' => $order_ref,
+                    'itemNumber' => ($index + 1),
+                    'itemDescription1' => $item['name'],
+                    'itemDescription2' => '',
+                    'itemDescription3' => '',
+                    'itemDescription4' => '',
+                    'itemDescription5' => '',
+                    'quantity' => $item['qty'],
+                    'amount' => (int)(100 * $item['price_with_tax']), //must include tax
+                    'vatPrice' => (int)(100 * $item['tax_price']),
+                    'vatPercent' => (int)(100 * $item['tax_percent'])
+                );
+
+                $result = Mage::helper('payex/api')->getPx()->AddSingleOrderLine2($params);
+                Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddSingleOrderLine2');
+            }
+
+            // Add Order Address Info
+            $params = array_merge(
+                array(
+                'accountNumber' => '',
+                'orderRef' => $order_ref
+                ), Mage::helper('payex/order')->getAddressInfo($order)
+            );
+
+            $result = Mage::helper('payex/api')->getPx()->AddOrderAddress2($params);
+            Mage::helper('payex/tools')->debugApi($result, 'PxOrder.AddOrderAddress2');
         }
 
         // Set Pending Payment status
@@ -97,8 +129,7 @@ class PayEx_Payments_WywalletController extends Mage_Core_Controller_Front_Actio
         $order->save();
 
         // Redirect to Bank
-        header('Location: ' . $redirectUrl);
-        exit();
+        Mage::app()->getFrontController()->getResponse()->setRedirect($redirectUrl)->sendResponse();
     }
 
     public function successAction()
@@ -106,7 +137,8 @@ class PayEx_Payments_WywalletController extends Mage_Core_Controller_Front_Actio
         Mage::helper('payex/tools')->addToDebug('Controller: success');
 
         // Check OrderRef
-        if (empty($_GET['orderRef'])) {
+        $orderRef = $this->getRequest()->getParam('orderRef');
+        if (empty($orderRef)) {
             $this->_redirect('checkout/cart');
         }
 
@@ -126,7 +158,7 @@ class PayEx_Payments_WywalletController extends Mage_Core_Controller_Front_Actio
         // Call PxOrder.Complete
         $params = array(
             'accountNumber' => '',
-            'orderRef' => $_GET['orderRef']
+            'orderRef' => $orderRef
         );
         $result = Mage::helper('payex/api')->getPx()->Complete($params);
         Mage::helper('payex/tools')->debugApi($result, 'PxOrder.Complete');
