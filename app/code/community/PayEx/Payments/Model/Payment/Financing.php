@@ -79,6 +79,10 @@ class PayEx_Payments_Model_Payment_Financing extends PayEx_Payments_Model_Paymen
             return false;
         }
 
+        if (!$quote) {
+            return false;
+        }
+
         return true;
     }
 
@@ -139,7 +143,17 @@ class PayEx_Payments_Model_Payment_Financing extends PayEx_Payments_Model_Paymen
 
         // Get Social Security Number
         // You can use 8111032382 in Test Environment
-        $ssn = Mage::app()->getRequest()->getParam('social-security-number');
+        $ssn = trim(Mage::app()->getRequest()->getParam('social-security-number'));
+        if (empty($ssn)) {
+            Mage::throwException(Mage::helper('payex')->__('Please enter Social Security Number.'));
+        }
+
+        // Don't perform SSN validation
+        if (!$this->getConfigData('ssn_check')) {
+            // Save Social Security Number
+            $this->getCheckout()->setSocialSecurityNumber($ssn);
+            return;
+        }
 
         $params = array(
             'accountNumber' => '',

@@ -13,10 +13,9 @@ function fireEvent(element, event) {
 }
 
 Event.observe(document, 'dom:loaded', function () {
-    if ($('billing-address-select')) {
-        document.getElementById('billing-address-select').value = '';
-        fireEvent(document.getElementById('billing-address-select'), 'change');
-    }
+    $('socialSecurityNumber').on('focus', 'input', function() {
+        $('ssn_details').show();
+    });
 
     $('ssn_click').observe('click', function (event) {
         // Check button is disabled
@@ -45,9 +44,29 @@ Event.observe(document, 'dom:loaded', function () {
                         $(self).removeClassName('disabled');
                         var json = response.responseText.evalJSON();
                         if (!json.success) {
-                            alert(json.message);
+                            if ($('social_security_number_form') != undefined) {
+                                // Use HTML placeholder to show message
+                                $('ssn-error').update(json.message);
+                                $('ssn-error-placeholder').show();
+                            } else {
+                                // Use popup message as failback
+                                alert(json.message);
+                            }
+
                             return;
                         }
+
+                        // Show "New Address" fieldset
+                        if ($('billing-address-select')) {
+                            document.getElementById('billing-address-select').value = '';
+                            fireEvent(document.getElementById('billing-address-select'), 'change');
+                        }
+
+                        // Hide error placeholder
+                        if ($('social_security_number_form') != undefined) {
+                            $('social_security_number_form').hide();
+                        }
+
                         // Set Form Fields
                         if ($('billing:firstname')) $('billing:firstname').setValue(json.first_name);
                         if ($('billing:lastname')) $('billing:lastname').setValue(json.last_name);
@@ -61,7 +80,11 @@ Event.observe(document, 'dom:loaded', function () {
                         if ($('billing:city')) $('billing:city').setValue(json.city);
                         if ($('billing:region')) $('billing:region').setValue('');
                         if ($('billing:postcode')) $('billing:postcode').setValue(json.postcode);
-                        if ($('billing:country_id')) $('billing:country_id').setValue(json.country);
+                        if ($('billing:country_id')) {
+                            $('billing:country_id').setValue(json.country);
+                            //$('billing:country_id').fire('change');
+                            fireEvent(document.getElementById('billing:country_id'), 'change');
+                        }
                     }
                 }
             );

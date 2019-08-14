@@ -98,7 +98,12 @@ class PayEx_Payments_Helper_Tools extends Mage_Core_Helper_Abstract
             'REJECTED_BY_ACQUIRER_INVALID_AMOUNT' => Mage::helper('payex')->__('Incorrect amount'),
             'USER_CANCELED' => Mage::helper('payex')->__('Payment cancelled'),
             'CardNotAcceptedForThisPurchase' => Mage::helper('payex')->__('Your Credit Card not accepted for this purchase'),
-            'CreditCheckNotApproved' => Mage::helper('payex')->__('Credit check was declined, please try another payment option')
+            'CreditCheckNotApproved' => Mage::helper('payex')->__('Credit check was declined, please try another payment option'),
+            'IssuerCountryNotSupported' => Mage::helper('payex')->__('Payment is not allowed from your country'),
+            'FraudPatternDetected' => Mage::helper('payex')->__('Your payment has been flagged as possible fraud by the bank. The payment has been cancelled.'),
+            'CardStoreTypeNotSupported' => Mage::helper('payex')->__('Your card is not accepted for this purchase'),
+            'MaximumCountExceeded' => Mage::helper('payex')->__('The amount of allowed tries to pay was exceeded. Please wait a couple of hours and try again.'),
+            'CommunicationError' => Mage::helper('payex')->__('There is a technical problem with communication to the bank. Please try again later.'),
         );
         $errorMessages = array_change_key_case($errorMessages, CASE_UPPER);
 
@@ -165,7 +170,7 @@ class PayEx_Payments_Helper_Tools extends Mage_Core_Helper_Abstract
     public function getNameParser()
     {
         if (!class_exists('FullNameParser', false)) {
-            require_once Mage::getBaseDir('lib') . '/Px/parser.php';
+            require_once Mage::getBaseDir('lib') . '/PHP-Name-Parser/parser.php';
         }
 
         return new FullNameParser();

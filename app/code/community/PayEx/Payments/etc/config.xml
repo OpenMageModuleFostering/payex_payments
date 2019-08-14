@@ -3,7 +3,7 @@
     <modules>
         <PayEx_Payments>
             <!-- declare module's version information for database updates -->
-            <version>3.0.1</version>
+            <version>3.1.0</version>
         </PayEx_Payments>
     </modules>
 
@@ -18,14 +18,14 @@
                 <resourceModel>payex_mysql4</resourceModel>
             </payex>
 
-            <payex_mysql4>
+            <!-- <payex_mysql4>
                 <class>PayEx_Payments_Model_Mysql4</class>
                 <entities>
                     <payex_agreement>
                         <table>payexautopay_agreement</table>
                     </payex_agreement>
                 </entities>
-            </payex_mysql4>
+            </payex_mysql4> -->
         </models>
 
         <!-- IMPORTANT: if you use your own namespace (i.e. CompanyName) you also have to declare blocks group for new module. See topic: http://www.magentocommerce.com/boards/viewthread/22416/#t102732 -->
@@ -76,18 +76,57 @@
                         <after>subtotal,discount,shipping</after>
                         <before>tax,grand_total</before>
                         <renderer>payex/checkout_fee</renderer>
-                        <admin_renderer>payex/adminhtml_sales_order_create_totals_fee</admin_renderer>
+                        <!-- <admin_renderer>payex/adminhtml_sales_order_create_totals_fee</admin_renderer> -->
                     </payex_payment_fee>
+                    <payex_payment_fee_tax>
+                        <class>payex/quote_tax</class>
+                        <after>subtotal,discount,shipping,tax</after>
+                        <before>grand_total</before>
+                    </payex_payment_fee_tax>
                 </totals>
             </quote>
             <order_invoice>
                 <totals>
                     <payex_payment_fee>
                         <class>payex/invoice_total</class>
+                        <after>subtotal,discount,shipping</after>
+                        <before>tax,grand_total</before>
                     </payex_payment_fee>
+                    <payex_payment_fee_tax>
+                        <class>payex/invoice_tax</class>
+                        <after>subtotal,discount,shipping,tax</after>
+                        <before>grand_total</before>
+                    </payex_payment_fee_tax>
                 </totals>
             </order_invoice>
+            <order_creditmemo>
+                <totals>
+                    <payex_payment_fee>
+                        <class>payex/creditmemo_total</class>
+                        <after>subtotal,discount,shipping</after>
+                        <before>tax,grand_total</before>
+                    </payex_payment_fee>
+                    <payex_payment_fee_tax>
+                        <class>payex/creditmemo_tax</class>
+                        <after>subtotal,discount,shipping,tax</after>
+                        <before>grand_total</before>
+                    </payex_payment_fee_tax>
+                </totals>
+            </order_creditmemo>
         </sales>
+
+        <pdf>
+            <totals>
+                <payex_payment_fee translate="title">
+                    <title>Payment fee</title>
+                    <source_field>payment_fee</source_field>
+                    <font_size>7</font_size>
+                    <display_zero>0</display_zero>
+                    <sort_order>550</sort_order>
+                    <model>payex/invoice_pdf_total</model>
+                </payex_payment_fee>
+            </totals>
+        </pdf>
 
         <events>
             <sales_order_invoice_save_after>
@@ -127,7 +166,7 @@
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_cc>
                 <!-- by default this payment method is inactive -->
-                <active>1</active>
+                <active>0</active>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_CC</model>
                 <!-- default title for payment checkout page and order view page -->
@@ -144,12 +183,23 @@
                 <cleantime>20</cleantime>
                 <responsive>0</responsive>
                 <checkoutinfo>1</checkoutinfo>
+                <discount_calc>advanced</discount_calc>
             </payex_cc>
+
+            <payex_billing_agreement>
+                <active>0</active>
+                <model>payex/payment_agreement</model>
+                <title>PayEx Billing Agreement</title>
+                <transactiontype>1</transactiontype>
+                <allow_billing_agreement_wizard>0</allow_billing_agreement_wizard>
+                <agreementurl>http://example.com</agreementurl>
+                <maxamount>1000</maxamount>
+            </payex_billing_agreement>
 
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_bankdebit>
                 <!-- by default this payment method is inactive -->
-                <active>1</active>
+                <active>0</active>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_bankdebit</model>
                 <!-- default title for payment checkout page and order view page -->
@@ -164,12 +214,13 @@
                 <cleantime>20</cleantime>
                 <responsive>0</responsive>
                 <checkoutinfo>1</checkoutinfo>
+                <discount_calc>advanced</discount_calc>
             </payex_bankdebit>
 
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_wywallet>
                 <!-- by default this payment method is inactive -->
-                <active>1</active>
+                <active>0</active>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_wywallet</model>
                 <!-- default title for payment checkout page and order view page -->
@@ -185,36 +236,13 @@
                 <cleantime>20</cleantime>
                 <responsive>0</responsive>
                 <checkoutinfo>1</checkoutinfo>
+                <discount_calc>advanced</discount_calc>
             </payex_wywallet>
-
-            <!-- 'newmodule' configuration group (fieldset) -->
-            <payex_autopay>
-                <!-- by default this payment method is inactive -->
-                <active>1</active>
-                <!-- model to handle logic for this payment method -->
-                <model>payex/payment_autopay</model>
-                <!-- order status for new orders paid by this payment method -->
-                <order_status>1</order_status>
-                <!-- default title for payment checkout page and order view page -->
-                <title>PayEx Credit Card One-click Payments</title>
-                <allowspecific>0</allowspecific>
-                <accountnumber>payex account number</accountnumber>
-                <encryptionkey>payex encryption key</encryptionkey>
-                <transactiontype>1</transactiontype>
-                <debug>1</debug>
-                <order_status>1</order_status>
-                <clientlanguage>en-US</clientlanguage>
-                <agreementurl>http://example.com</agreementurl>
-                <maxamount>1000</maxamount>
-                <cleantime>20</cleantime>
-                <responsive>0</responsive>
-                <checkoutinfo>1</checkoutinfo>
-            </payex_autopay>
 
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_masterpass>
                 <!-- by default this payment method is inactive -->
-                <active>1</active>
+                <active>0</active>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_MasterPass</model>
                 <!-- default title for payment checkout page and order view page -->
@@ -228,12 +256,13 @@
                 <order_status_capture>complete</order_status_capture>
                 <clientlanguage>en-US</clientlanguage>
                 <cleantime>20</cleantime>
+                <discount_calc>advanced</discount_calc>
             </payex_masterpass>
 
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_financing>
                 <!-- by default this payment method is inactive -->
-                <active>1</active>
+                <active>0</active>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_financing</model>
                 <!-- default title for payment checkout page and order view page -->
@@ -250,12 +279,14 @@
                 <cleantime>20</cleantime>
                 <replace_illegal>1</replace_illegal>
                 <replacement_char>-</replacement_char>
+                <ssn_check>1</ssn_check>
+                <discount_calc>advanced</discount_calc>
             </payex_financing>
 
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_partpayment>
                 <!-- by default this payment method is inactive -->
-                <active>1</active>
+                <active>0</active>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_PartPayment</model>
                 <!-- default title for payment checkout page and order view page -->
@@ -272,13 +303,15 @@
                 <cleantime>20</cleantime>
                 <replace_illegal>1</replace_illegal>
                 <replacement_char>-</replacement_char>
+                <ssn_check>1</ssn_check>
+                <discount_calc>advanced</discount_calc>
             </payex_partpayment>
 
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_invoice>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_invoice</model>
-                <active>1</active>
+                <active>0</active>
                 <!-- default title for payment checkout page and order view page -->
                 <title>PayEx Invoice Payments (Ledger Service)</title>
                 <allowspecific>0</allowspecific>
@@ -296,12 +329,14 @@
                 <invoicetext>Invoice text</invoicetext>
                 <invoiceduedays>15</invoiceduedays>
                 <unapproved>0</unapproved>
+                <credit_check>0</credit_check>
+                <discount_calc>advanced</discount_calc>
             </payex_invoice>
 
             <!-- 'newmodule' configuration group (fieldset) -->
             <payex_swish>
                 <!-- by default this payment method is inactive -->
-                <active>1</active>
+                <active>0</active>
                 <!-- model to handle logic for this payment method -->
                 <model>payex/payment_swish</model>
                 <!-- default title for payment checkout page and order view page -->
@@ -315,8 +350,18 @@
                 <cleantime>20</cleantime>
                 <responsive>0</responsive>
                 <checkoutinfo>1</checkoutinfo>
+                <discount_calc>advanced</discount_calc>
             </payex_swish>
         </payment>
+
+        <tax>
+            <cart_display>
+                <payex_fee>3</payex_fee>
+            </cart_display>
+            <sales_display>
+                <payex_fee>3</payex_fee>
+            </sales_display>
+        </tax>
     </default>
 
     <adminhtml>

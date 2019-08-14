@@ -110,48 +110,34 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
 
     /**
      * Create Invoice
-     * @param $order
+     * @param Mage_Sales_Model_Order $order
      * @param bool $online
      * @return Mage_Sales_Model_Order_Invoice
      */
     public function makeInvoice(&$order, $online = false)
     {
         // Prepare Invoice
-        $magento_version = Mage::getVersion();
-        if (version_compare($magento_version, '1.4.2', '>=')) {
-            $invoice = Mage::getModel('sales/order_invoice_api_v2');
-            $invoice_id = $invoice->create($order->getIncrementId(), $order->getAllItems(), Mage::helper('payex')->__('Auto-generated from PayEx module'), false, false);
-            $invoice = Mage::getModel('sales/order_invoice')->loadByIncrementId($invoice_id);
+        /** @var Mage_Sales_Model_Order_Invoice $invoice */
+        $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
+        $invoice->addComment(Mage::helper('payex')->__('Auto-generated from PayEx module'), false, false);
+        $invoice->setRequestedCaptureCase($online ? Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE : Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
+        $invoice->register();
 
-            if ($online) {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-                $invoice->capture()->save();
-            } else {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
-                $invoice->pay()->save();
-            }
-        } else {
-            $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
-            $invoice->addComment(Mage::helper('payex')->__('Auto-generated from PayEx module'), false, false);
-            $invoice->setRequestedCaptureCase($online ? Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE : Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
-            $invoice->register();
+        $invoice->getOrder()->setIsInProcess(true);
 
-            $invoice->getOrder()->setIsInProcess(true);
-
-            try {
-                $transactionSave = Mage::getModel('core/resource_transaction')
-                    ->addObject($invoice)
-                    ->addObject($invoice->getOrder());
-                $transactionSave->save();
-            } catch (Mage_Core_Exception $e) {
-                // Save Error Message
-                $order->addStatusToHistory(
-                    $order->getStatus(),
-                    'Failed to create invoice: ' . $e->getMessage(),
-                    true
-                );
-                Mage::throwException($e->getMessage());
-            }
+        try {
+            $transactionSave = Mage::getModel('core/resource_transaction')
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder());
+            $transactionSave->save();
+        } catch (Mage_Core_Exception $e) {
+            // Save Error Message
+            $order->addStatusToHistory(
+                $order->getStatus(),
+                'Failed to create invoice: ' . $e->getMessage(),
+                true
+            );
+            Mage::throwException($e->getMessage());
         }
 
         $invoice->setIsPaid(true);
@@ -371,11 +357,10 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
 
         // add Discount
         $discountData = Mage::helper('payex/discount')->getOrderDiscountData($order);
-        $discountInclTax = (int) (100 * $discountData->getDiscountInclTax());
-        $discountExclTax = (int) (100 * $discountData->getDiscountExclTax());
-        $discountVatAmount = $discountInclTax - $discountExclTax;
-
-        if (abs($discountInclTax) > 0) {
+        if (abs($discountData->getDiscountInclTax()) > 0) {
+            $discountInclTax = (int) (100 * $discountData->getDiscountInclTax());
+            $discountExclTax = (int) (100 * $discountData->getDiscountExclTax());
+            $discountVatAmount = $discountInclTax - $discountExclTax;
             $discountVatPercent = (($discountInclTax / $discountExclTax) - 1) * 100;
 
             $params = array(
@@ -405,7 +390,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
             $feeIncTax = $feeExclTax + $feeTax;
 
             // find out tax-rate for the fee
-            if ((float) $feeIncTax && (float) $feeExclTax) {
+            if ($feeIncTax > 0 && $feeExclTax > 0) {
                 $feeTaxRate = Mage::app()->getStore()->roundPrice((($feeIncTax / $feeExclTax) - 1) * 100);
             } else {
                 $feeTaxRate = 0;
@@ -648,7 +633,7 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
             $feeIncTax = $feeExclTax + $feeTax;
 
             // find out tax-rate for the fee
-            if ((float) $feeIncTax && (float) $feeExclTax) {
+            if ($feeIncTax > 0 && $feeExclTax > 0) {
                 $feeTaxRate = round((($feeIncTax / $feeExclTax) - 1) * 100);
             } else {
                 $feeTaxRate = 0;
@@ -666,12 +651,11 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
 
         // add Discount
         $discountData = Mage::helper('payex/discount')->getOrderDiscountData($order);
-        $discountInclTax = $discountData->getDiscountInclTax();
-        $discountExclTax = $discountData->getDiscountExclTax();
-        $discountVatAmount = $discountInclTax - $discountExclTax;
-        $discountVatPercent = round((($discountInclTax / $discountExclTax) - 1) * 100);
-
-        if (abs($discountInclTax) > 0) {
+        if (abs($discountData->getDiscountInclTax()) > 0) {
+            $discountInclTax = $discountData->getDiscountInclTax();
+            $discountExclTax = $discountData->getDiscountExclTax();
+            $discountVatAmount = $discountInclTax - $discountExclTax;
+            $discountVatPercent = round((($discountInclTax / $discountExclTax) - 1) * 100);
             $discount_description = ($order->getDiscountDescription() !== null) ? Mage::helper('sales')->__('Discount (%s)', $order->getDiscountDescription()) : Mage::helper('sales')->__('Discount');
 
             $OrderLine = $dom->createElement('OrderLine');
@@ -726,5 +710,66 @@ class PayEx_Payments_Helper_Order extends Mage_Core_Helper_Abstract
         );
         $result = Mage::helper('payex/api')->getPx()->InvoiceLinkGet($params);
         return $result;
+    }
+
+    /**
+     * Extract Credit Card Details
+     * @param array $transaction
+     * @return Varien_Object
+     */
+    public function getCCDetails(array $transaction)
+    {
+        // Get Masked Credit Card Number
+        $masked_number = Mage::helper('payex')->__('Untitled Credit Card');
+        if (!empty($transaction['maskedNumber'])) {
+            $masked_number = $transaction['maskedNumber'];
+        } elseif (!empty($transaction['maskedCard'])) {
+            $masked_number = $transaction['maskedCard'];
+        }
+
+        // Get Card Type
+        $card_type = '';
+        if (!empty($transaction['cardProduct'])) {
+            $card_type = $transaction['cardProduct'];
+        } elseif (!empty( $transaction['paymentMethod'])) {
+            $card_type = $transaction['paymentMethod'];
+        }
+
+        /**
+         * Card types: VISA, MC (Mastercard), EUROCARD, MAESTRO, DINERS (Diners Club), AMEX (American Express), LIC,
+         * FDM, FORBRUGSFORENINGEN, JCB, FINAX, DANKORT
+         */
+        $card_type = strtolower(preg_replace('/[^A-Z]+/', '', $card_type));
+        $card_type = str_replace('mc', 'mastercard', $card_type);
+        if (empty($card_type)){
+            $card_type = 'visa';
+        }
+
+        // Get Expired
+        $expire_date = '';
+        if (!empty($transaction['paymentMethodExpireDate'])) {
+            $expire_date = $transaction['paymentMethodExpireDate'];
+        }
+
+        $return = new Varien_Object();
+        return $return->setMaskedNumber($masked_number)
+            ->setType($card_type)
+            ->setExpireDate($expire_date);
+    }
+
+    /**
+     * Get Formatted CC name
+     * Pattern: TYPE MASKED_NUMBER YYYY/MM
+     * @param array $transaction
+     * @return string
+     */
+    public function getFormattedCC(array $transaction)
+    {
+        $details = $this->getCCDetails($transaction);
+        return sprintf('%s %s %s', strtoupper(
+            $details->getType()),
+            $details->getMaskedNumber(),
+            date('Y/m', strtotime($details->getExpireDate()))
+        );
     }
 }

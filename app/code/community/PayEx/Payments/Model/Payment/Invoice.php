@@ -73,6 +73,10 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
             return false;
         }
 
+        if (!$quote) {
+            return false;
+        }
+
         // Check currency
         $allowedCurrency = array('DKK', 'EUR', 'GBP', 'NOK', 'SEK', 'USD');
         return in_array($quote->getQuoteCurrencyCode(), $allowedCurrency);
@@ -85,6 +89,11 @@ class PayEx_Payments_Model_Payment_Invoice extends PayEx_Payments_Model_Payment_
     public function validate()
     {
         Mage::helper('payex/tools')->addToDebug('Action: Validate');
+
+        // Credit Check is disabled
+        if (!$this->getConfigData('credit_check')) {
+            return true;
+        }
 
         // Get Total Amount
         $amount = $this->getQuote()->getGrandTotal();
