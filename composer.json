@@ -1,7 +1,7 @@
 {
-    "name": "OpenMageModuleFostering\/PayEx_Payments",
+    "name": "openmage-module-fostering\/payex_payments",
     "type": "magento-module",
-    "license": "Open-Software-License-(OSL-3.0)",
+    "license": "OSL-3.0",
     "homepage": "",
     "description": "PayEx Payments for Magento",
     "authors": [
